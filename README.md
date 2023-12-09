@@ -3,7 +3,7 @@
 Generate a png profile from an 8- or 16-bit digital elevation model
 
 <img src="profile_50pct.png" width="600" height="234"/>
-the above profile came from the horizontal line from this DEM
+the above profile came from the horizontal centerline of this DEM
 <img src="FranceLesArcs.png" width="600" height="200"/>
 
 ## Build
