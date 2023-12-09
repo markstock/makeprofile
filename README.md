@@ -3,6 +3,8 @@
 Generate a png profile from an 8- or 16-bit digital elevation model
 
 <img src="profile_50pct.png" width="600" height="234"/>
+the above profile came from the horizontal line from this DEM
+<img src="FranceLesArcs.png" width="600" height="200"/>
 
 ## Build
 If you have gcc and libpng installed, this should be as easy as
