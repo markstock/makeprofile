@@ -24,3 +24,16 @@ Many things need to be finished here!
 
 ## Credits
 Thanks to the developers of [CLI11](https://github.com/CLIUtils/CLI11). All the rest of the code is mine, cribbed from various projects.
+
+## Citing makeprofile
+
+I don't get paid for writing or maintaining this, so if you find this tool useful or mention it in your writing, please please cite it by using the following BibTeX entry.
+
+```
+@Misc{Makeprofile2023,
+  author =       {Mark J.~Stock},
+  title =        {Makeprofile:  Generate a png profile from a digital elevation model},
+  howpublished = {\url{https://github.com/markstock/makeprofile}},
+  year =         {2023}
+}
+```
