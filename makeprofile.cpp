@@ -15,6 +15,61 @@
 
 constexpr double pi() { return std::atan(1)*4; }
 
+// finding intersection points of a point-angle combination with the box boundaries
+
+void findIntersection(const float px, const float py, const float alpha,
+                      const float nx, const float ny,
+                      float& x_intersect, float& y_intersect) {
+
+  const float alpharad = std::fmod(alpha, 360.f) * M_PI / 180.0;
+
+  // Check intersection with the right boundary
+  if (alpharad < M_PI / 2 || alpharad > 3 * M_PI / 2) {
+    x_intersect = nx;
+    y_intersect = py + std::tan(alpharad) * (nx - px);
+    //printf("  right bdry, testing %g %g\n", x_intersect, y_intersect);
+    if (y_intersect >= 0 && y_intersect <= ny) {
+      return;
+    }
+  } 
+
+  // Check intersection with the left boundary
+  if (alpharad > M_PI / 2 && alpharad < 3 * M_PI / 2) {
+    x_intersect = 0;
+    y_intersect = py - std::tan(alpharad) * px;
+    //printf("  left bdry, testing %g %g\n", x_intersect, y_intersect);
+    if (y_intersect >= 0 && y_intersect <= ny) {
+      return;
+    }
+  }
+
+  // Check intersection with the top boundary
+  if (alpharad > 0 && alpharad < M_PI) {
+    y_intersect = ny;
+    x_intersect = px + (ny - py) / std::tan(alpharad);
+    //printf("  top bdry, testing %g %g\n", x_intersect, y_intersect);
+    if (x_intersect >= 0 && x_intersect <= nx) {
+      return;
+    }
+  }
+
+  // Check intersection with the bottom boundary
+  if (alpharad > M_PI && alpharad < 2 * M_PI) {
+    y_intersect = 0;
+    x_intersect = px - py / std::tan(alpharad);
+    //printf("  bottom bdry, testing %g %g\n", x_intersect, y_intersect);
+    if (x_intersect >= 0 && x_intersect <= nx) {
+      return;
+    }
+  }
+
+  // If no intersection is found, return the original point (this should not happen with valid inputs)
+  x_intersect = px;
+  y_intersect = py;
+  return;
+}
+
+
 // begin execution here
 
 int main(int argc, char const *argv[]) {
@@ -61,10 +116,10 @@ int main(int argc, char const *argv[]) {
   // check the resolution first
   size_t nx, ny;
   {
-  int hgt, wdt;
-  (void) read_png_res (demfile.c_str(), &hgt, &wdt);
-  if (wdt > 0) nx = wdt;
-  if (hgt > 0) ny = hgt;
+    int hgt, wdt;
+    (void) read_png_res (demfile.c_str(), &hgt, &wdt);
+    if (wdt > 0) nx = wdt;
+    if (hgt > 0) ny = hgt;
   }
 
   // allocate the space
@@ -80,17 +135,6 @@ int main(int argc, char const *argv[]) {
   //
 
   // find start and finish pixel positions
-  // convert angle to radians and keep within 0..2pi range
-  float alpharad = alpha/360.0f;
-  alpharad = alpharad - floor(alpharad);
-  alpharad = alpharad * pi() / 180.f;
-
-  // where does a ray from the given datum position leave the volume (which of 4 sides)?
-  const float topright = std::atan2(ny*(1.0f-py), nx*(1.0f-px));
-  const float topleft  = std::atan2(ny*(1.0f-py), nx*(-px));
-  const float botleft  = std::atan2(ny*(-py),     nx*(-px));
-  const float botright = std::atan2(ny*(-py),     nx*(1.0f-px));
-  printf("Angles to corners, CCW from +x: %g %g %g %g\n", topright, topleft, botleft, botright);
 
   // default is straight across the image
   float sx = 0.0;
@@ -98,16 +142,11 @@ int main(int argc, char const *argv[]) {
   float fx = nx;
   float fy = ny/2.0f;
 
-  // TODO: support arbitrary plane through the volume
-  if (std::tan(alpharad) < ny*(1.0f-py)/(nx*(1.0f-px))) {
-    // intersects the right edge
-    fx = nx;
-    fy = ny * (py + (1.f-px)*std::sin(alpharad));
-  } else if (std::tan(alpharad) < ny*(1.f-py)/(nx*(1.f-px))) {
-  } else {
-    // intersects the right edge
-  }
-  
+  // we go left-to-right, which means alpha+180 first
+  findIntersection(px*nx, py*ny, alpha+180.f, nx, ny, sx, sy);
+  findIntersection(px*nx, py*ny, alpha, nx, ny, fx, fy);
+  printf("  start and end points: %g %g %g %g\n", sx, sy, fx, fy);
+
   // march along the line, setting elevation values
   float* profile = allocate_1d_array_f((int)ox);
   for (size_t i=0; i<ox; ++i) {
