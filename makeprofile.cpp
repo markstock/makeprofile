@@ -21,10 +21,10 @@ void findIntersection(const float px, const float py, const float alpha,
                       const float nx, const float ny,
                       float& x_intersect, float& y_intersect) {
 
-  const float alpharad = std::fmod(alpha, 360.f) * M_PI / 180.0;
+  const float alpharad = std::fmod(alpha, 360.f) * pi() / 180.0;
 
   // Check intersection with the right boundary
-  if (alpharad < M_PI / 2 || alpharad > 3 * M_PI / 2) {
+  if (alpharad < pi() / 2 || alpharad > 3 * pi() / 2) {
     x_intersect = nx;
     y_intersect = py + std::tan(alpharad) * (nx - px);
     //printf("  right bdry, testing %g %g\n", x_intersect, y_intersect);
@@ -34,7 +34,7 @@ void findIntersection(const float px, const float py, const float alpha,
   } 
 
   // Check intersection with the left boundary
-  if (alpharad > M_PI / 2 && alpharad < 3 * M_PI / 2) {
+  if (alpharad > pi() / 2 && alpharad < 3 * pi() / 2) {
     x_intersect = 0;
     y_intersect = py - std::tan(alpharad) * px;
     //printf("  left bdry, testing %g %g\n", x_intersect, y_intersect);
@@ -44,7 +44,7 @@ void findIntersection(const float px, const float py, const float alpha,
   }
 
   // Check intersection with the top boundary
-  if (alpharad > 0 && alpharad < M_PI) {
+  if (alpharad > 0 && alpharad < pi()) {
     y_intersect = ny;
     x_intersect = px + (ny - py) / std::tan(alpharad);
     //printf("  top bdry, testing %g %g\n", x_intersect, y_intersect);
@@ -54,7 +54,7 @@ void findIntersection(const float px, const float py, const float alpha,
   }
 
   // Check intersection with the bottom boundary
-  if (alpharad > M_PI && alpharad < 2 * M_PI) {
+  if (alpharad > pi() && alpharad < 2 * pi()) {
     y_intersect = 0;
     x_intersect = px - py / std::tan(alpharad);
     //printf("  bottom bdry, testing %g %g\n", x_intersect, y_intersect);
