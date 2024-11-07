@@ -1,7 +1,7 @@
 CC=gcc
 CXX=g++
-DEBUG=-g -ggdb -O0
-#DEBUG=-Ofast
+#DEBUG=-g -ggdb -O0
+DEBUG=-Ofast
 CFLAGS=-std=c99
 CXXFLAGS=-std=c++11
 #INC=-I/usr/include/eigen3

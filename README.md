@@ -18,7 +18,7 @@ It helps to have a 16-bit DEM or DSM as the input, though an 8-bit file will do.
 
 ## To do
 Many things need to be finished here!
-* Use bilinear interpolation instead of nearest
+* Use bilinear interpolation instead of nearest - DONE
 * Allow arbitrary lines through the DEM/DSM
 * Option to flip black and white in the output image
 
