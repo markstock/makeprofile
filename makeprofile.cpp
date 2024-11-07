@@ -114,11 +114,25 @@ int main(int argc, char const *argv[]) {
     const float wgt = (i+0.5f)/ox;
     const float tx = sx*(1.0f-wgt) + fx*wgt;
     const float ty = sy*(1.0f-wgt) + fy*wgt;
+
     // closest
-    const size_t ix = std::max((size_t)0, std::min((size_t)(nx-1), (size_t)(tx+0.5f)));
-    const size_t iy = std::max((size_t)0, std::min((size_t)(ny-1), (size_t)(ty+0.5f)));
-    profile[i] = dem[ix][iy];
-    // TODO: bi-linear interpolation
+    //const size_t ix = std::max((size_t)0, std::min((size_t)(nx-1), (size_t)(tx+0.5f)));
+    //const size_t iy = std::max((size_t)0, std::min((size_t)(ny-1), (size_t)(ty+0.5f)));
+    //profile[i] = dem[ix][iy];
+
+    // Bilinear interpolation
+    const size_t x1 = std::max((size_t)0, std::min((size_t)(nx - 1), (size_t)tx));
+    const size_t y1 = std::max((size_t)0, std::min((size_t)(ny - 1), (size_t)ty));
+    const size_t x2 = std::min(nx - 1, x1 + 1);
+    const size_t y2 = std::min(ny - 1, y1 + 1);
+
+    const float x_diff = tx - x1;
+    const float y_diff = ty - y1;
+
+    profile[i] = dem[x1][y1] * (1 - x_diff) * (1 - y_diff) +
+                 dem[x2][y1] *      x_diff  * (1 - y_diff) +
+                 dem[x1][y2] * (1 - x_diff) *      y_diff +
+                 dem[x2][y2] *      x_diff  *      y_diff;
   }
 
   // free the dem
