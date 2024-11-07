@@ -145,10 +145,24 @@ int main(int argc, char const *argv[]) {
 
   for (size_t i=0; i<ox; ++i) {
     const float yval = profile[i] * oy;
-    const size_t yidx = yval+0.5;
-    // TODO: linear interpolation
-    for (size_t j=0; j<yidx; ++j) profimg[i][j] = 0.0;
-    for (size_t j=yidx; j<oy; ++j) profimg[i][j] = 1.0;
+
+    // nearest
+    //const size_t yidx = yval+0.5;
+    //for (size_t j=0; j<yidx; ++j) profimg[i][j] = 0.0;
+    //for (size_t j=yidx; j<oy; ++j) profimg[i][j] = 1.0;
+
+    // linear interpolation
+    const float lefty = oy * ((i==0) ? (2.f*profile[0]-profile[1]) : profile[i-1]);
+    const float righty = oy * ((i==ox-1) ? (2.f*profile[ox-1]-profile[ox-2]) : profile[i+1]);
+    for (size_t j=0; j<oy; ++j) {
+      // half of the value comes from where we are between left and middle y values
+      const float ldist = ((j+0.5f)-(0.5f*(yval+lefty))) / (std::abs(yval-lefty) + 1.f);
+      profimg[i][j] = (ldist > 0.5f) ? 1.f : ((ldist < -0.5f) ? 0.f : (0.5f+ldist));
+      // other half the value comes from where we are between right and middle y values
+      const float rdist = ((j+0.5f)-(0.5f*(yval+righty))) / (std::abs(yval-righty) + 1.f);
+      profimg[i][j] += (rdist > 0.5f) ? 1.f : ((rdist < -0.5f) ? 0.f : (0.5f+rdist));
+      profimg[i][j] *= 0.5f;
+    }
   }
 
   // free the profile
@@ -160,11 +174,9 @@ int main(int argc, char const *argv[]) {
 
   std::cout << "Writing dem to " << outfile << std::endl;
 
-  float** data = allocate_2d_array_f((int)nx, (int)ny);
-
   (void) write_png (outfile.c_str(), (int)ox, (int)oy, FALSE, TRUE,
                     profimg, 0.0, 1.0, nullptr, 0.0, 1.0, nullptr, 0.0, 1.0);
 
-  free_2d_array_f(data);
+  free_2d_array_f(profimg);
 
 }
